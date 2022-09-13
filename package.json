@@ -1,6 +1,7 @@
 {
   "name": "react-solana",
   "version": "0.1.0",
+  "main": "src/index.ts",
   "repository": "git@github.com:sultandilaram/react-solana.git",
   "license": "MIT",
   "dependencies": {
