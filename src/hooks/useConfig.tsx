@@ -1,5 +1,5 @@
 import React from 'react'
-import { ConfigContext } from '../contexts';
+import { ConfigContext } from '../contexts/contexts';
 import { useLocalStorage } from ".";
 import { Config, SolanaNetwork } from '../types';
 
@@ -8,9 +8,9 @@ export default function useConfig() {
 
   if (!config) throw new Error("useConfig must be used inside ConfigProvider");
 
-  const [rpc, setRpcState] = useLocalStorage("rpc", config.RPC_List[0].url);
+  const [rpc, setRpcState] = useLocalStorage("rpc", config.network === SolanaNetwork.Devnet ? 'https://api.devnet.solana.com/' : config.RPC_List[0].url);
 
-  const setRpc = (name: string) => {
+  const setRpc = React.useCallback((name: string) => {
     if (config.network === SolanaNetwork.Devnet) return;
 
     const rpc = config.RPC_List.find((option) => option.name === name);
@@ -19,15 +19,15 @@ export default function useConfig() {
     } else {
       throw new Error("RPC not found");
     }
-  };
+  }, [config, setRpcState]);
 
-  const getRpcName = () => {
+  const getRpcName = React.useCallback(() => {
     if (config.network === SolanaNetwork.Devnet) return "Devnet";
 
-    const rpc: any = config.RPC_List.find((option) => option.url === rpc);
-    if (rpc) return rpc.name;
+    const _rpc: any = config.RPC_List.find((option) => option.url === rpc);
+    if (_rpc) return _rpc.name;
     return "Unknown RPC";
-  };
+  }, [config, rpc]);
 
   return {
     network: config.network,

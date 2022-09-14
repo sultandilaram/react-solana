@@ -1,5 +1,5 @@
 import React from 'react';
-import { AuthContext } from '../contexts';
+import { AuthContext } from '../contexts/contexts';
 import useLocalStorage from "./useLocalStorage";
 
 export default function useAuth() {
@@ -13,15 +13,15 @@ export default function useAuth() {
 
   const isAuth = React.useMemo(() => authToken === null ? true : false, [authToken]);
 
-  const login = React.useCallback(async (...args) => {
+  const login = React.useCallback(async (...args: any) => {
     const token = await authContext.loginMethod(...args);
     setAuthToken(token)
-  }, []);
+  }, [authContext, setAuthToken]);
 
   const logout = React.useCallback(() => {
     setAuthToken(null)
-    authContext.logoutCallback();
-  }, []);
+    authContext.logoutCallback && authContext.logoutCallback();
+  }, [authContext, setAuthToken]);
 
   return {
     authToken,

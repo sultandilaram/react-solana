@@ -6,8 +6,11 @@ export default function useLocalStorage<T = any>(key: string, initialState: T ex
       const item = localStorage.getItem(key)
 
       if (item && item !== "null") {
-        console.log(item, "item")
-        return JSON.parse(item)
+        try {
+          return JSON.parse(item)
+        } catch {
+          return item
+        }
       } else {
         const defaultValue = typeof initialState === 'function' ? initialState() : initialState
         localStorage.setItem(key, JSON.stringify(defaultValue))
@@ -20,14 +23,14 @@ export default function useLocalStorage<T = any>(key: string, initialState: T ex
     }
   })
 
-  const setValue = (value: any) => {
+  const setValue = React.useCallback((value: any) => {
     setValueState(value)
     try {
       localStorage.setItem(key, JSON.stringify(value))
     } catch (e) {
       console.error(e)
     }
-  }
+  }, [setValueState])
 
   return [value, setValue]
 }

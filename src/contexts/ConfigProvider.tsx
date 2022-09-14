@@ -1,5 +1,5 @@
 import React from 'react'
-import { ConfigContext } from '.'
+import { ConfigContext } from './contexts'
 import { Config } from '../types'
 
 export default function ConfigProvider({ config, children }: { config: Config, children: React.ReactNode }) {
