@@ -132,16 +132,16 @@ $breakpoints: (
       border: $value * 1px solid var(--border-color) !important;
     }
     &l#{$value} {
-      padding-left: $value * 1px solid var(--border-color) !important;
+      border-left: $value * 1px solid var(--border-color) !important;
     }
     &r#{$value} {
-      padding-right: $value * 1px solid var(--border-color) !important;
+      border-right: $value * 1px solid var(--border-color) !important;
     }
     &b#{$value} {
-      padding-bottom: $value * 1px solid var(--border-color) !important;
+      border-bottom: $value * 1px solid var(--border-color) !important;
     }
     &t#{$value} {
-      padding-top: $value * 1px solid var(--border-color) !important;
+      border-top: $value * 1px solid var(--border-color) !important;
     }
   }
 }
@@ -330,7 +330,7 @@ $breakpoints: (
         justify-content: space-around;
       }
       &-evenly {
-        justify-content: space-around;
+        justify-content: space-evenyl;
       }
     }
   }
@@ -352,7 +352,7 @@ $breakpoints: (
         align-items: space-around;
       }
       &-evenly {
-        align-items: space-around;
+        align-items: space-evenly;
       }
     }
   }
@@ -414,7 +414,7 @@ $breakpoints: (
       text-align: flex-start;
     }
     &-end {
-      text-align: end;
+      text-align: flex-end;
     }
   }
 
