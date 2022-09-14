@@ -226,10 +226,10 @@ $breakpoints: (
 }
 
 @mixin grid-define($prefix, $value) {
-  .#{$prefix}cols-#{$value} {
+  .#{$prefix}cols#{$value} {
     grid-template-columns: repeat($value, 1fr);
   }
-  .#{$prefix}rows-#{$value} {
+  .#{$prefix}rows#{$value} {
     grid-template-rows: repeat($value, 1fr);
   }
 }
