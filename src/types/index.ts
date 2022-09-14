@@ -1,5 +1,3 @@
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-
 export enum SolanaNetwork {
   Devnet = "devnet",
   Testnet = "testnet",
