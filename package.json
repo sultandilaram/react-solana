@@ -1,8 +1,9 @@
 {
   "name": "react-solana",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "React utilities for Solana",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "git@github.com:sultandilaram/react-solana.git",
   "license": "MIT",
   "scripts": {
