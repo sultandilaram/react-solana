@@ -10,8 +10,14 @@ export default function useConfig() {
 
   const [rpc, setRpcState] = useLocalStorage("rpc", config.network === SolanaNetwork.Devnet ? 'https://api.devnet.solana.com/' : config.RPC_List[0].url);
 
-  const setRpc = React.useCallback((name: string) => {
-    if (config.network === SolanaNetwork.Devnet) return;
+  React.useEffect(() => {
+    if (getRpcName() === 'Unknown RPC') {
+      setRpc(config.RPC_List[0].name);
+    }
+  }, [])
+
+  const setRpc = React.useCallback((name: string | String) => {
+    if (config.network === SolanaNetwork.Devnet) return setRpcState("https://api.devnet.solana.com/");
 
     const rpc = config.RPC_List.find((option) => option.name === name);
     if (rpc) {
