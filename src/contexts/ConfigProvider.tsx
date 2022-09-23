@@ -1,7 +1,7 @@
 import React from 'react'
 import { ConfigContext } from './contexts'
 import { Config, SolanaNetwork } from '../types'
-import { useLocalStorage } from '../hooks';
+import { useLocalStorage } from 'react-base-kit'
 
 type Props = { config: Config, children: React.ReactNode }
 export default function ConfigProvider({ config, children }: Props) {
