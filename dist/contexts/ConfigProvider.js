@@ -7,8 +7,12 @@ export default function ConfigProvider({
   children
 }) {
   React.useEffect(() => {
-    if (getRpcName() === 'Unknown RPC') {
+    console.log('rpc', getRpcName());
+
+    if (config.network == SolanaNetwork.Mainnet && getRpcName() === 'Unknown RPC') {
       setRpc(config.RPC_List[0].name);
+    } else {
+      setRpc(getRpcName());
     }
   }, []);
   const [rpc, setRpcState] = useLocalStorage("rpc", config.network === SolanaNetwork.Devnet ? 'https://api.devnet.solana.com/' : config.RPC_List[0].url);

@@ -7,8 +7,11 @@ type Props = { config: Config, children: React.ReactNode }
 export default function ConfigProvider({ config, children }: Props) {
 
   React.useEffect(() => {
-    if (getRpcName() === 'Unknown RPC') {
+    console.log('rpc', getRpcName())
+    if (config.network == SolanaNetwork.Mainnet && getRpcName() === 'Unknown RPC') {
       setRpc(config.RPC_List[0].name);
+    } else {
+      setRpc(getRpcName());
     }
   }, [])
 
