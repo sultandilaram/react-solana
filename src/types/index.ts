@@ -4,21 +4,11 @@ export enum SolanaNetwork {
   Mainnet = "mainnet-beta",
 }
 
-export type Network = SolanaNetwork;
-
-export type Production = Boolean;
-
-export type Url = String;
-
 export type RPC = {
-  name: String;
-  url: Url;
+  name: string;
+  url: string;
 };
-
 export interface Config {
-  network: Network;
-  production: Production;
-  localUrl: Url;
-  prodUrl: Url;
+  network: SolanaNetwork;
   RPC_List: RPC[];
 }

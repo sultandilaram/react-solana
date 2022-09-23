@@ -1,6 +1,8 @@
 import React from 'react';
 import { Config } from '../types';
-export default function ConfigProvider({ config, children }: {
+declare type Props = {
     config: Config;
     children: React.ReactNode;
-}): JSX.Element;
+};
+export default function ConfigProvider({ config, children }: Props): JSX.Element;
+export {};

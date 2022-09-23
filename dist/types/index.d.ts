@@ -3,17 +3,11 @@ export declare enum SolanaNetwork {
     Testnet = "testnet",
     Mainnet = "mainnet-beta"
 }
-export declare type Network = SolanaNetwork;
-export declare type Production = Boolean;
-export declare type Url = String;
 export declare type RPC = {
-    name: String;
-    url: Url;
+    name: string;
+    url: string;
 };
 export interface Config {
-    network: Network;
-    production: Production;
-    localUrl: Url;
-    prodUrl: Url;
+    network: SolanaNetwork;
     RPC_List: RPC[];
 }

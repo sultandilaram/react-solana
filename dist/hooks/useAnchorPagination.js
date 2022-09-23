@@ -9,7 +9,7 @@ export default function useAnchorPagination(program, accountName, filters = [], 
     return new Array(Math.ceil(accounts.length / dataPerPage)).fill([]);
   });
   React.useEffect(() => {
-    if (!accountNameIDL) throw new Error("Account not found in IDL");
+    if (!accountNameIDL) throw new Error(` '${accountName}' account not found in IDL`);
 
     (async () => {
       const accounts = (await program.provider.connection.getProgramAccounts(program.programId, {
@@ -25,7 +25,7 @@ export default function useAnchorPagination(program, accountName, filters = [], 
     })();
   }, [accountNameIDL, filters, program]);
   const fetchPage = React.useCallback(async page => {
-    if (!accountNameIDL) throw new Error("Account not found in IDL");
+    if (!accountNameIDL) throw new Error(` '${accountName}' account not found in IDL`);
     const start = page * dataPerPage;
     const end = start + dataPerPage;
     const pageAccounts = accounts.slice(start, end);
