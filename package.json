@@ -9,7 +9,7 @@
   "scripts": {
     "test": "mv ./src/index.ts ./src/_index.ts",
     "start": "react-scripts start",
-    "build": "mv ./src/_index.ts ./src/index.ts && rm -rf dist && mkdir dist &&  babel src --extensions \".tsx,.ts\" -d dist --copy-files && tsc"
+    "build": "mv ./src/_index.ts ./src/index.ts && rm -rf dist && mkdir dist &&  babel src --extensions \".tsx,.ts\" -d dist --copy-files --no-copy-ignored && tsc"
   },
   "dependencies": {
     "@project-serum/anchor": "^0.25.0",
