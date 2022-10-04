@@ -3,9 +3,10 @@ import * as anchor from "@project-serum/anchor";
 import * as web3 from "@solana/web3.js";
 
 
-export default function useAnchorPagination<T extends anchor.Idl = any, R = any>(program: anchor.Program<T>, accountName: string, filters: web3.GetProgramAccountsFilter[] = [], dataPerPage: number = 10) {
+export default function useAnchorPagination<T extends anchor.Idl = any, R = any>(program: anchor.Program<T> | undefined, accountName: string, filters: web3.GetProgramAccountsFilter[] = [], dataPerPage: number = 10) {
 
   const accountNameIDL = React.useMemo(() => {
+    if (!program) throw new Error("Program is undefined");
     if (!program.idl.accounts?.length) throw new Error("No accounts found in IDL");
     return program.idl.accounts
       .map((a) => a.name)
@@ -18,6 +19,7 @@ export default function useAnchorPagination<T extends anchor.Idl = any, R = any>
   });
 
   React.useEffect(() => {
+    if (!program) throw new Error("Program is undefined");
     if (!accountNameIDL) throw new Error(` '${accountName}' account not found in IDL`);
 
     (async () => {
@@ -35,6 +37,7 @@ export default function useAnchorPagination<T extends anchor.Idl = any, R = any>
   }, [accountNameIDL, filters, program]);
 
   const fetchPage = React.useCallback(async (page: number) => {
+    if (!program) throw new Error("Program is undefined");
     if (!accountNameIDL) throw new Error(` '${accountName}' account not found in IDL`);
 
     const start = page * dataPerPage;
