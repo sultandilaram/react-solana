@@ -1,6 +1,7 @@
 import React from "react";
 export default function useAnchorPagination(program, accountName, filters = [], dataPerPage = 10) {
   const accountNameIDL = React.useMemo(() => {
+    if (!program) throw new Error("Program is undefined");
     if (!program.idl.accounts?.length) throw new Error("No accounts found in IDL");
     return program.idl.accounts.map(a => a.name).find(a => a === accountName);
   }, [program, accountName]);
@@ -9,6 +10,7 @@ export default function useAnchorPagination(program, accountName, filters = [], 
     return new Array(Math.ceil(accounts.length / dataPerPage)).fill([]);
   });
   React.useEffect(() => {
+    if (!program) throw new Error("Program is undefined");
     if (!accountNameIDL) throw new Error(` '${accountName}' account not found in IDL`);
 
     (async () => {
@@ -25,6 +27,7 @@ export default function useAnchorPagination(program, accountName, filters = [], 
     })();
   }, [accountNameIDL, filters, program]);
   const fetchPage = React.useCallback(async page => {
+    if (!program) throw new Error("Program is undefined");
     if (!accountNameIDL) throw new Error(` '${accountName}' account not found in IDL`);
     const start = page * dataPerPage;
     const end = start + dataPerPage;
