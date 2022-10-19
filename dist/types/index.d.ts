@@ -7,7 +7,8 @@ export declare type RPC = {
     name: string;
     url: string;
 };
-export interface Config {
+export interface Config<T = unknown> {
     network: SolanaNetwork;
     RPC_List: RPC[];
+    custom?: T;
 }

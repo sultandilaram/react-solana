@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ConfigContext } from './contexts';
 import { SolanaNetwork } from '../types';
 import { useLocalStorage } from 'react-base-kit';
@@ -6,9 +6,8 @@ export default function ConfigProvider({
   config,
   children
 }) {
+  const [custom, setCustom] = useState(config.custom);
   React.useEffect(() => {
-    console.log('rpc', getRpcName());
-
     if (config.network == SolanaNetwork.Mainnet && getRpcName() === 'Unknown RPC') {
       setRpc(config.RPC_List[0].name);
     } else {
@@ -38,8 +37,10 @@ export default function ConfigProvider({
     value: {
       network: config.network,
       rpc_url: rpc,
+      custom,
       setRpc,
-      getRpcName
+      getRpcName,
+      setCustom
     }
   }, children);
 }

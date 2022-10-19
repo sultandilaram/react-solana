@@ -1,14 +1,13 @@
 import React from "react";
 import { SolanaNetwork } from "../types";
-export interface IConfigContext {
+export interface IConfigContext<T = unknown> {
     network: SolanaNetwork;
     rpc_url: string;
+    custom?: T;
     setRpc: (name: string | String) => void;
     getRpcName: () => string;
+    setCustom: React.Dispatch<T>;
 }
-export declare const ConfigContext: React.Context<IConfigContext | undefined>;
-export interface IAuthContext {
-    loginMethod: (...args: any) => Promise<string>;
-    logoutCallback?: () => void;
+export declare const ConfigContext: React.Context<IConfigContext<unknown> | undefined>;
+export interface IStakingContext {
 }
-export declare const AuthContext: React.Context<IAuthContext | undefined>;
