@@ -1,13 +1,12 @@
 import React from 'react';
-import * as anchor from "@project-serum/anchor";
 import * as web3 from "@solana/web3.js";
 import { MerkleTree } from '../helpers';
-import { StakingProgram, StaticNFTMetadata } from '../types';
+import { StaticNFTMetadata } from '../types';
 interface StakingProviderProps {
     children: React.ReactNode;
     stakingProjectKey?: web3.PublicKey;
     stakingProjectAddress?: web3.PublicKey;
-    program: anchor.Program<StakingProgram> | undefined;
+    stakingProgramAddress: web3.PublicKey;
     metadata: StaticNFTMetadata[];
     factionToNumber: (faction: string) => number;
     createMerkleTree?: () => MerkleTree;

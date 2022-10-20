@@ -1,12 +1,37 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { ConfigContext } from './contexts'
 import { Config, SolanaNetwork } from '../types'
 import { useLocalStorage } from 'react-base-kit'
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+import { PhantomWalletAdapter, SlopeWalletAdapter, SolflareWalletAdapter, SolletWalletAdapter, TorusWalletAdapter } from '@solana/wallet-adapter-wallets';
 
 type Props = { config: Config, children: React.ReactNode }
 export default function ConfigProvider({ config, children }: Props) {
 
-  const [custom, setCustom] = useState(config.custom);
+  const [rpc, setRpcState] = useLocalStorage("rpc", config.network === SolanaNetwork.Devnet ? 'https://api.devnet.solana.com/' : config.RPC_List[0].url);
+
+  const [custom, setCustom] = React.useState(config.custom);
+
+  const network = React.useMemo(() => {
+    switch (config.network) {
+      case SolanaNetwork.Mainnet:
+        return WalletAdapterNetwork.Mainnet
+      default:
+        return WalletAdapterNetwork.Devnet;
+    }
+  }, [config.network])
+
+  const wallets = React.useMemo(
+    () => (config.wallets && config.wallets.length) ? config.wallets : [
+      new PhantomWalletAdapter(),
+      new SlopeWalletAdapter(),
+      new SolflareWalletAdapter({ network }),
+      new SolletWalletAdapter({ network }),
+      new TorusWalletAdapter(),
+    ],
+    [network]
+  );
 
   React.useEffect(() => {
     if (config.network == SolanaNetwork.Mainnet && getRpcName() === 'Unknown RPC') {
@@ -16,7 +41,6 @@ export default function ConfigProvider({ config, children }: Props) {
     }
   }, [])
 
-  const [rpc, setRpcState] = useLocalStorage("rpc", config.network === SolanaNetwork.Devnet ? 'https://api.devnet.solana.com/' : config.RPC_List[0].url);
 
   const setRpc = React.useCallback((name: string | String) => {
     if (config.network === SolanaNetwork.Devnet) return setRpcState("https://api.devnet.solana.com/");
@@ -46,7 +70,11 @@ export default function ConfigProvider({ config, children }: Props) {
       getRpcName,
       setCustom
     }} >
-      {children}
+      <ConnectionProvider endpoint={rpc}>
+        <WalletProvider wallets={wallets} autoConnect>
+          {children}
+        </WalletProvider>
+      </ConnectionProvider>
     </ConfigContext.Provider>
   )
 }

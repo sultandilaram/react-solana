@@ -4,6 +4,7 @@ import * as web3 from "@solana/web3.js";
 import * as token from "@solana/spl-token";
 import { buildLeaves, MerkleTree } from '../helpers';
 import { useProvider } from '../hooks';
+import { StakingProgramIDL } from '../types';
 import { StakingContext } from './contexts';
 export default function StakingProvider(props) {
   /// Deps
@@ -17,6 +18,10 @@ export default function StakingProvider(props) {
   const [project, setProject] = React.useState();
   const [availableNFTs, setAvailableNFTs] = React.useState([]);
   const [stakedNFTs, setStakedNFTs] = React.useState([]);
+  const program = React.useMemo(() => {
+    if (!provider.provider) return;
+    return new anchor.Program(StakingProgramIDL, props.stakingProgramAddress, provider.provider);
+  }, [provider.provider]);
   const tree = React.useMemo(() => {
     if (props.createMerkleTree) {
       return props.createMerkleTree();
@@ -31,15 +36,15 @@ export default function StakingProvider(props) {
   }, [props.metadata]); /// Methods
 
   const fetchProject = React.useCallback(async () => {
-    if (!props.program) throw new Error("Program not loaded");
+    if (!program) throw new Error("Program not loaded");
     let projectAddress = props.stakingProjectAddress;
 
     if (props.stakingProjectKey) {
-      projectAddress = (await web3.PublicKey.findProgramAddress([Buffer.from('jungle'), props.stakingProjectKey.toBuffer()], props.program.programId))[0];
+      projectAddress = (await web3.PublicKey.findProgramAddress([Buffer.from('jungle'), props.stakingProjectKey.toBuffer()], program.programId))[0];
     }
 
     if (!projectAddress) throw new Error("Project Key/Address is not provided");
-    const fetchedProject = await props.program.account.jungle.fetch(projectAddress);
+    const fetchedProject = await program.account.jungle.fetch(projectAddress);
     return {
       address: projectAddress,
       key: fetchedProject.key,
@@ -53,7 +58,7 @@ export default function StakingProvider(props) {
       baseWeeklyEmissions: fetchedProject.baseWeeklyEmissions.toNumber(),
       root: fetchedProject.root
     };
-  }, [props.program]);
+  }, [program]);
   const fetchAvailableNFTs = React.useCallback(async wallet => {
     const owned = (await provider.connection.getParsedTokenAccountsByOwner(wallet, {
       programId: token.TOKEN_PROGRAM_ID
@@ -77,13 +82,14 @@ export default function StakingProvider(props) {
     return nfts;
   }, []);
   const fetchStakedNFTs = React.useCallback(async wallet => {
-    if (!props.program) throw new Error("Program not loaded");
-    const staked = await props.program.account.animal.all([{
+    if (!program) throw new Error("Program not loaded");
+    const staked = await program.account.animal.all([{
       memcmp: {
         offset: 42,
         bytes: wallet.toString()
       }
     }]);
+    console.log("staked", staked);
     const collectionMints = props.metadata.map(e => e.mint);
     const data = staked.map(e => e.account).filter(e => collectionMints.includes(e.mint.toString())).map(e => {
       const metadataItem = props.metadata.filter(f => f.mint === e.mint.toString())[0];
@@ -101,15 +107,16 @@ export default function StakingProvider(props) {
       const nb = Number(b.metadata?.name.split('#')[1] || '999999');
       return na - nb;
     });
+    console.log("data", data);
     return data;
-  }, [props.program]);
+  }, [program]);
   const fetchNFT = React.useCallback(async mint => {
-    if (!props.program) throw new Error("Program not provided");
-    const [animalAddress] = await web3.PublicKey.findProgramAddress([Buffer.from('nft'), mint.toBuffer()], props.program.programId);
+    if (!program) throw new Error("Program not provided");
+    const [animalAddress] = await web3.PublicKey.findProgramAddress([Buffer.from('nft'), mint.toBuffer()], program.programId);
     const metadataItem = props.metadata.filter(e => e.mint === mint.toString())[0];
 
     try {
-      const fetchedAnimal = await props.program.account.animal.fetch(animalAddress);
+      const fetchedAnimal = await program.account.animal.fetch(animalAddress);
       return {
         mint: mint,
         metadata: metadataItem.arweave,
@@ -129,7 +136,7 @@ export default function StakingProvider(props) {
         faction: metadataItem.faction
       };
     }
-  }, [props.program]);
+  }, [program]);
   const getMultiplier = React.useCallback(nft => 1, []);
   const getRewards = React.useCallback((nft, end) => {
     if (!nft.lastClaim || end < nft.lastClaim) return 0;
@@ -173,9 +180,9 @@ export default function StakingProvider(props) {
   // Stake Animal
 
   const createStakeTx = React.useCallback(async (nft, isFirst) => {
-    if (!props.program || !provider.wallet.publicKey || !project || !provider) throw new Error("Missing dependencies");
-    const [nftAddress, nftBump] = await web3.PublicKey.findProgramAddress([Buffer.from('animal', 'utf8'), nft.mint.toBuffer()], props.program.programId);
-    const [deposit, depositBump] = await web3.PublicKey.findProgramAddress([Buffer.from('deposit', 'utf8'), nft.mint.toBuffer()], props.program.programId);
+    if (!program || !provider.wallet.publicKey || !project || !provider) throw new Error("Missing dependencies");
+    const [nftAddress, nftBump] = await web3.PublicKey.findProgramAddress([Buffer.from('animal', 'utf8'), nft.mint.toBuffer()], program.programId);
+    const [deposit, depositBump] = await web3.PublicKey.findProgramAddress([Buffer.from('deposit', 'utf8'), nft.mint.toBuffer()], program.programId);
     const stakerAccount = await token.getAssociatedTokenAddress(nft.mint, provider.wallet.publicKey);
     const instructions = [];
 
@@ -192,7 +199,7 @@ export default function StakingProvider(props) {
       deposit: depositBump
     };
     const indexStaked = props.metadata.findIndex(e => e.mint === nft.mint.toString());
-    const tx = await props.program.methods.stakeAnimal(bumps, tree.getProofArray(indexStaked), new anchor.BN(nft.emissionsPerDay), new anchor.BN(props.factionToNumber(nft.faction))).accounts({
+    const tx = await program.methods.stakeAnimal(bumps, tree.getProofArray(indexStaked), new anchor.BN(nft.emissionsPerDay), new anchor.BN(props.factionToNumber(nft.faction))).accounts({
       jungle: project.address,
       escrow: project.escrow,
       animal: nftAddress,
@@ -209,7 +216,7 @@ export default function StakingProvider(props) {
       tx,
       signers: []
     };
-  }, [props.program, project, tree, provider.wallet.publicKey]);
+  }, [program, project, tree, provider.wallet.publicKey]);
   const stake = React.useCallback((...nfts) => {
     provider.sendInBatches(nfts, createStakeTx, loadNfts, 10);
   }, [provider.sendInBatches, createStakeTx, loadNfts]);
@@ -222,9 +229,9 @@ export default function StakingProvider(props) {
   // It also creates all used account if they do not exist
 
   const createClaimTx = React.useCallback(async (nft, isFirst) => {
-    if (!props.program || !project || !provider.wallet.publicKey) throw new Error("Missing dependencies");
-    const [rewardsAccount] = await web3.PublicKey.findProgramAddress([Buffer.from('rewards', 'utf8'), project.key.toBuffer(), project.rewardMint.toBuffer()], props.program.programId);
-    const [nftAddress] = await web3.PublicKey.findProgramAddress([Buffer.from('animal', 'utf8'), nft.mint.toBuffer()], props.program.programId);
+    if (!program || !project || !provider.wallet.publicKey) throw new Error("Missing dependencies");
+    const [rewardsAccount] = await web3.PublicKey.findProgramAddress([Buffer.from('rewards', 'utf8'), project.key.toBuffer(), project.rewardMint.toBuffer()], program.programId);
+    const [nftAddress] = await web3.PublicKey.findProgramAddress([Buffer.from('animal', 'utf8'), nft.mint.toBuffer()], program.programId);
     const stakerAccount = await token.getAssociatedTokenAddress(project.rewardMint, provider.wallet.publicKey);
     const instructions = [];
 
@@ -236,7 +243,7 @@ export default function StakingProvider(props) {
       }
     }
 
-    const tx = await props.program.methods.claimStaking().accounts({
+    const tx = await program.methods.claimStaking().accounts({
       jungle: project.address,
       escrow: project.escrow,
       animal: nftAddress,
@@ -253,7 +260,7 @@ export default function StakingProvider(props) {
       tx,
       signers: []
     };
-  }, [props.program, project, provider.wallet.publicKey]);
+  }, [program, project, provider.wallet.publicKey]);
   const claim = React.useCallback((...nfts) => {
     provider.sendInBatches(nfts, createClaimTx, () => {}, 10);
   }, [provider.sendInBatches, createClaimTx]);
@@ -266,9 +273,9 @@ export default function StakingProvider(props) {
   // It also creates all used account if they do not exist and claims rewards
 
   const createUnstakeTx = React.useCallback(async (nft, isFirst) => {
-    if (!props.program || !project || !provider.wallet.publicKey) throw new Error("Missing dependencies");
-    const [nftAddress] = await web3.PublicKey.findProgramAddress([Buffer.from('animal', 'utf8'), nft.mint.toBuffer()], props.program.programId);
-    const [deposit] = await web3.PublicKey.findProgramAddress([Buffer.from('deposit', 'utf8'), nft.mint.toBuffer()], props.program.programId);
+    if (!program || !project || !provider.wallet.publicKey) throw new Error("Missing dependencies");
+    const [nftAddress] = await web3.PublicKey.findProgramAddress([Buffer.from('animal', 'utf8'), nft.mint.toBuffer()], program.programId);
+    const [deposit] = await web3.PublicKey.findProgramAddress([Buffer.from('deposit', 'utf8'), nft.mint.toBuffer()], program.programId);
     const nftStakerAccount = await token.getAssociatedTokenAddress(nft.mint, provider.wallet.publicKey);
     const instructions = [];
 
@@ -282,7 +289,7 @@ export default function StakingProvider(props) {
       tx,
       signers
     } = await createClaimTx(nft, isFirst);
-    tx.add(...instructions, await props.program.methods.unstakeAnimal().accounts({
+    tx.add(...instructions, await program.methods.unstakeAnimal().accounts({
       jungle: project.address,
       escrow: project.escrow,
       animal: nftAddress,
@@ -296,7 +303,7 @@ export default function StakingProvider(props) {
       tx,
       signers
     };
-  }, [props.program, project, provider.wallet.publicKey, createClaimTx]);
+  }, [program, project, provider.wallet.publicKey, createClaimTx]);
   const unstake = React.useCallback((...nfts) => {
     provider.sendInBatches(nfts, createUnstakeTx, loadNfts, 10);
   }, [provider.sendInBatches, createUnstakeTx, loadNfts]);
