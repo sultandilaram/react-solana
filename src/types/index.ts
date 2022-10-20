@@ -1,4 +1,5 @@
 import * as web3 from "@solana/web3.js";
+import { Adapter } from "@solana/wallet-adapter-base";
 
 export enum SolanaNetwork {
   Devnet = "devnet",
@@ -14,6 +15,7 @@ export type RPC = {
 export interface Config<T = unknown> {
   network: SolanaNetwork;
   RPC_List: RPC[];
+  wallets?: Adapter[];
   custom?: T;
 }
 

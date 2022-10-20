@@ -13,7 +13,7 @@ export default function useProvider(opts) {
   const wallet = useWallet();
   const provider = React.useMemo(() => {
     if (!connection) return;
-    return new anchor.AnchorProvider(connection, wallet, opts || defaultOpts); //eslint-disable-next-line react-hooks/exhaustive-deps
+    return new anchor.AnchorProvider(connection, wallet, opts || defaultOpts);
   }, [connection, wallet]);
   const sendTransaction = React.useCallback(async (tx, opts, toasts) => {
     if (!wallet.publicKey || !wallet.signTransaction) throw new Error("Wallet not connected!");

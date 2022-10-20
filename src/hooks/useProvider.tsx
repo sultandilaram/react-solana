@@ -17,7 +17,6 @@ export default function useProvider(opts?: web3.ConfirmOptions) {
   const provider = React.useMemo(() => {
     if (!connection) return;
     return new anchor.AnchorProvider(connection, wallet as any, opts || defaultOpts);
-    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connection, wallet]);
 
   const sendTransaction = React.useCallback(async (tx: anchor.web3.Transaction, opts?: web3.ConfirmOptions, toasts?: {
