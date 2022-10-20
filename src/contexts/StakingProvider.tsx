@@ -54,7 +54,7 @@ export default function StakingProvider(props: StakingProviderProps) {
     let projectAddress = props.stakingProjectAddress;
     if (props.stakingProjectKey) {
       projectAddress = (await web3.PublicKey.findProgramAddress(
-        [Buffer.from('project'), props.stakingProjectKey.toBuffer()],
+        [Buffer.from('jungle'), props.stakingProjectKey.toBuffer()],
         props.program.programId
       ))[0];
     }
