@@ -2,7 +2,6 @@ import React from 'react';
 import * as anchor from "@project-serum/anchor";
 import * as web3 from "@solana/web3.js";
 import * as token from "@solana/spl-token";
-import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
 import { buildLeaves, MerkleTree } from '../helpers';
 import { useProvider } from '../hooks';
 import { StakingContext } from './contexts';
@@ -56,9 +55,11 @@ export default function StakingProvider(props) {
     };
   }, [props.program]);
   const fetchAvailableNFTs = React.useCallback(async wallet => {
-    const owned = await Metadata.findDataByOwner(provider.connection, wallet);
+    const owned = (await provider.connection.getParsedTokenAccountsByOwner(wallet, {
+      programId: token.TOKEN_PROGRAM_ID
+    })).value.filter(token => parseInt(token.account.data.parsed.info.tokenAmount.amount) > 0).map(token => new web3.PublicKey(token.account.data.parsed.info.mint).toString());
     const collectionMints = props.metadata.map(e => e.mint);
-    const nfts = owned.map(e => e.mint).filter(e => collectionMints.includes(e)).map(e => {
+    const nfts = owned.filter(e => collectionMints.includes(e)).map(e => {
       const metadataItem = props.metadata.filter(f => f.mint === e)[0];
       return {
         mint: new web3.PublicKey(e),
