@@ -485,6 +485,7 @@ export default function StakingProvider(props: StakingProviderProps) {
         unstake,
         unstakeSingle,
         unstakeAll,
+        refresh: loadNfts,
       }}
     >
       {props.children}

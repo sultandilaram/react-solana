@@ -322,7 +322,8 @@ export default function StakingProvider(props) {
       claimAll,
       unstake,
       unstakeSingle,
-      unstakeAll
+      unstakeAll,
+      refresh: loadNfts
     }
   }, props.children);
 }

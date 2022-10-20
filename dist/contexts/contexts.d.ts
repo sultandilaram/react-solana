@@ -31,5 +31,6 @@ export interface IStakingContext {
     unstake: (...nfts: NFT[]) => void;
     unstakeSingle: (nft: NFT) => void;
     unstakeAll: () => void;
+    refresh: () => void;
 }
 export declare const StakingContext: React.Context<IStakingContext | undefined>;
