@@ -5,3 +5,6 @@ export let SolanaNetwork;
   SolanaNetwork["Testnet"] = "testnet";
   SolanaNetwork["Mainnet"] = "mainnet-beta";
 })(SolanaNetwork || (SolanaNetwork = {}));
+
+export * from "./staking";
+export * from "./StakingProgram";
