@@ -6,5 +6,6 @@ export let SolanaNetwork;
   SolanaNetwork["Mainnet"] = "mainnet-beta";
 })(SolanaNetwork || (SolanaNetwork = {}));
 
+export * from "./nft";
 export * from "./staking";
 export * from "./StakingProgram";

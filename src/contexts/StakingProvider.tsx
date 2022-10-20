@@ -147,7 +147,7 @@ export default function StakingProvider(props: StakingProviderProps) {
     return data;
   }, [props.program]);
 
-  const fetchAnimal = React.useCallback(async (mint: web3.PublicKey): Promise<NFT> => {
+  const fetchNFT = React.useCallback(async (mint: web3.PublicKey): Promise<NFT> => {
     if (!props.program) throw new Error("Program not provided");
 
     const [animalAddress] = await web3.PublicKey.findProgramAddress(
@@ -249,9 +249,7 @@ export default function StakingProvider(props: StakingProviderProps) {
       props.program.programId
     );
 
-    const stakerAccount = await token.Token.getAssociatedTokenAddress(
-      token.ASSOCIATED_TOKEN_PROGRAM_ID,
-      token.TOKEN_PROGRAM_ID,
+    const stakerAccount = await token.getAssociatedTokenAddress(
       nft.mint,
       provider.wallet.publicKey
     );
@@ -260,21 +258,14 @@ export default function StakingProvider(props: StakingProviderProps) {
 
     if (isFirst) {
       try {
-        await new token.Token(
-          provider.connection,
-          nft.mint,
-          token.TOKEN_PROGRAM_ID,
-          web3.Keypair.generate()
-        ).getAccountInfo(stakerAccount);
+        await token.getAccount(provider.connection, stakerAccount);
       } catch (err) {
         instructions.push(
-          token.Token.createAssociatedTokenAccountInstruction(
-            token.ASSOCIATED_TOKEN_PROGRAM_ID,
-            token.TOKEN_PROGRAM_ID,
-            nft.mint,
+          token.createAssociatedTokenAccountInstruction(
+            provider.wallet.publicKey,
             stakerAccount,
             provider.wallet.publicKey,
-            provider.wallet.publicKey
+            nft.mint,
           )
         );
       }
@@ -289,28 +280,27 @@ export default function StakingProvider(props: StakingProviderProps) {
       (e) => e.mint === nft.mint.toString()
     );
 
-    const tx = props.program.transaction.stakeAnimal(
+    const tx = await props.program.methods.stakeAnimal(
       bumps,
       tree.getProofArray(indexStaked),
       new anchor.BN(nft.emissionsPerDay),
-      new anchor.BN(props.factionToNumber(nft.faction)),
-      {
-        accounts: {
-          jungle: project.address,
-          escrow: project.escrow,
-          animal: nftAddress,
-          staker: provider.wallet.publicKey,
-          mint: nft.mint,
-          stakerAccount: stakerAccount,
-          depositAccount: deposit,
-          tokenProgram: token.TOKEN_PROGRAM_ID,
-          clock: web3.SYSVAR_CLOCK_PUBKEY,
-          rent: web3.SYSVAR_RENT_PUBKEY,
-          systemProgram: web3.SystemProgram.programId,
-        },
-        instructions: instructions,
-      }
+      new anchor.BN(props.factionToNumber(nft.faction))
     )
+      .accounts({
+        jungle: project.address,
+        escrow: project.escrow,
+        animal: nftAddress,
+        staker: provider.wallet.publicKey,
+        mint: nft.mint,
+        stakerAccount: stakerAccount,
+        depositAccount: deposit,
+        tokenProgram: token.TOKEN_PROGRAM_ID,
+        clock: web3.SYSVAR_CLOCK_PUBKEY,
+        rent: web3.SYSVAR_RENT_PUBKEY,
+        systemProgram: web3.SystemProgram.programId,
+      })
+      .preInstructions(instructions)
+      .transaction()
 
     return {
       tx, signers: [] as web3.Signer[]
@@ -348,9 +338,7 @@ export default function StakingProvider(props: StakingProviderProps) {
       props.program.programId
     );
 
-    const stakerAccount = await token.Token.getAssociatedTokenAddress(
-      token.ASSOCIATED_TOKEN_PROGRAM_ID,
-      token.TOKEN_PROGRAM_ID,
+    const stakerAccount = await token.getAssociatedTokenAddress(
       project.rewardMint,
       provider.wallet.publicKey
     );
@@ -359,28 +347,21 @@ export default function StakingProvider(props: StakingProviderProps) {
 
     if (isFirst) {
       try {
-        await new token.Token(
-          provider.connection,
-          project.rewardMint,
-          token.TOKEN_PROGRAM_ID,
-          provider.wallet as any
-        ).getAccountInfo(stakerAccount)
+        await token.getAccount(provider.connection, stakerAccount);
       } catch {
         instructions.push(
-          token.Token.createAssociatedTokenAccountInstruction(
-            token.ASSOCIATED_TOKEN_PROGRAM_ID,
-            token.TOKEN_PROGRAM_ID,
-            project.rewardMint,
+          token.createAssociatedTokenAccountInstruction(
+            provider.wallet.publicKey,
             stakerAccount,
             provider.wallet.publicKey,
-            provider.wallet.publicKey
+            project.rewardMint,
           )
         )
       }
     }
 
-    const tx = props.program.transaction.claimStaking({
-      accounts: {
+    const tx = await props.program.methods.claimStaking()
+      .accounts({
         jungle: project.address,
         escrow: project.escrow,
         animal: nftAddress,
@@ -392,9 +373,9 @@ export default function StakingProvider(props: StakingProviderProps) {
         clock: web3.SYSVAR_CLOCK_PUBKEY,
         rent: web3.SYSVAR_RENT_PUBKEY,
         systemProgram: web3.SystemProgram.programId,
-      },
-      instructions: instructions,
-    })
+      })
+      .preInstructions(instructions)
+      .transaction()
 
     return {
       tx, signers: [] as web3.Signer[]
@@ -428,9 +409,7 @@ export default function StakingProvider(props: StakingProviderProps) {
       props.program.programId
     );
 
-    const animalStakerAccount = await token.Token.getAssociatedTokenAddress(
-      token.ASSOCIATED_TOKEN_PROGRAM_ID,
-      token.TOKEN_PROGRAM_ID,
+    const nftStakerAccount = await token.getAssociatedTokenAddress(
       nft.mint,
       provider.wallet.publicKey
     );
@@ -438,21 +417,14 @@ export default function StakingProvider(props: StakingProviderProps) {
     const instructions: web3.TransactionInstruction[] = [];
 
     try {
-      await new token.Token(
-        provider.connection,
-        nft.mint,
-        token.TOKEN_PROGRAM_ID,
-        web3.Keypair.generate()
-      ).getAccountInfo(animalStakerAccount);
+      await token.getAccount(provider.connection, nftStakerAccount);
     } catch (err) {
       instructions.push(
-        token.Token.createAssociatedTokenAccountInstruction(
-          token.ASSOCIATED_TOKEN_PROGRAM_ID,
-          token.TOKEN_PROGRAM_ID,
-          nft.mint,
-          animalStakerAccount,
+        token.createAssociatedTokenAccountInstruction(
           provider.wallet.publicKey,
-          provider.wallet.publicKey
+          nftStakerAccount,
+          provider.wallet.publicKey,
+          nft.mint,
         )
       );
     }
@@ -461,18 +433,18 @@ export default function StakingProvider(props: StakingProviderProps) {
 
     tx.add(
       ...instructions,
-      props.program.instruction.unstakeAnimal({
-        accounts: {
+      await props.program.methods.unstakeAnimal()
+        .accounts({
           jungle: project.address,
           escrow: project.escrow,
           animal: nftAddress,
           staker: provider.wallet.publicKey,
           mint: nft.mint,
-          stakerAccount: animalStakerAccount,
+          stakerAccount: nftStakerAccount,
           depositAccount: deposit,
           tokenProgram: token.TOKEN_PROGRAM_ID,
-        },
-      })
+        })
+        .instruction()
     )
 
     return {
@@ -501,7 +473,7 @@ export default function StakingProvider(props: StakingProviderProps) {
         project,
         availableNFTs,
         stakedNFTs,
-        fetchAnimal,
+        fetchNFT,
         getRewards,
         getAllRewards,
         stake,
