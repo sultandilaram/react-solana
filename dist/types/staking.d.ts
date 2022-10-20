@@ -1,5 +1,5 @@
-import { MetadataJson } from "@metaplex/js";
 import { web3 } from "@project-serum/anchor";
+import { MetadataJson } from ".";
 export interface StakingProject {
     address: web3.PublicKey;
     key: web3.PublicKey;

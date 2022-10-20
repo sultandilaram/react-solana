@@ -23,7 +23,7 @@ export interface IStakingContext {
   project: StakingProject | undefined;
   availableNFTs: NFT[];
   stakedNFTs: NFT[];
-  fetchAnimal: (mint: web3.PublicKey) => Promise<NFT>;
+  fetchNFT: (mint: web3.PublicKey) => Promise<NFT>;
   getRewards: (nft: NFT, end: Date) => number;
   getAllRewards: (end: Date) => number;
   stake: (...nfts: NFT[]) => void;
