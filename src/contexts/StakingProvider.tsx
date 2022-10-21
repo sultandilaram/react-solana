@@ -128,7 +128,6 @@ export default function StakingProvider(props: StakingProviderProps) {
         },
       },
     ]);
-    console.log("staked", staked)
     const collectionMints = props.metadata.map((e) => e.mint);
     const data = staked
       .map((e) => e.account)
@@ -152,7 +151,6 @@ export default function StakingProvider(props: StakingProviderProps) {
         const nb = Number(b.metadata?.name.split('#')[1] || '999999');
         return na - nb;
       });
-    console.log("data", data)
     return data;
   }, [program]);
 
