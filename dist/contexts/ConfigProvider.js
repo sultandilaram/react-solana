@@ -1,3 +1,5 @@
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
 import React from 'react';
 import { ConfigContext } from './contexts';
 import { SolanaNetwork } from '../types';
@@ -5,6 +7,8 @@ import { useLocalStorage } from 'react-base-kit';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { PhantomWalletAdapter, SlopeWalletAdapter, SolflareWalletAdapter, SolletWalletAdapter, TorusWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 export default function ConfigProvider({
   config,
   children
@@ -64,5 +68,15 @@ export default function ConfigProvider({
   }, /*#__PURE__*/React.createElement(WalletProvider, {
     wallets: wallets,
     autoConnect: true
-  }, children)));
+  }, children, /*#__PURE__*/React.createElement(ToastContainer, _extends({
+    position: "bottom-left",
+    autoClose: 5000,
+    hideProgressBar: false,
+    newestOnTop: false,
+    closeOnClick: true,
+    rtl: false,
+    pauseOnFocusLoss: true,
+    draggable: true,
+    pauseOnHover: true
+  }, config.toastContainerConfig || {})))));
 }

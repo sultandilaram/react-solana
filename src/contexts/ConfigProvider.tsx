@@ -5,6 +5,8 @@ import { useLocalStorage } from 'react-base-kit'
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { PhantomWalletAdapter, SlopeWalletAdapter, SolflareWalletAdapter, SolletWalletAdapter, TorusWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type Props = { config: Config, children: React.ReactNode }
 export default function ConfigProvider({ config, children }: Props) {
@@ -73,6 +75,18 @@ export default function ConfigProvider({ config, children }: Props) {
       <ConnectionProvider endpoint={rpc}>
         <WalletProvider wallets={wallets} autoConnect>
           {children}
+          <ToastContainer
+            position='bottom-left'
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            {...(config.toastContainerConfig || {})}
+          />
         </WalletProvider>
       </ConnectionProvider>
     </ConfigContext.Provider>
