@@ -89,7 +89,6 @@ export default function StakingProvider(props) {
         bytes: wallet.toString()
       }
     }]);
-    console.log("staked", staked);
     const collectionMints = props.metadata.map(e => e.mint);
     const data = staked.map(e => e.account).filter(e => collectionMints.includes(e.mint.toString())).map(e => {
       const metadataItem = props.metadata.filter(f => f.mint === e.mint.toString())[0];
@@ -107,7 +106,6 @@ export default function StakingProvider(props) {
       const nb = Number(b.metadata?.name.split('#')[1] || '999999');
       return na - nb;
     });
-    console.log("data", data);
     return data;
   }, [program]);
   const fetchNFT = React.useCallback(async mint => {
