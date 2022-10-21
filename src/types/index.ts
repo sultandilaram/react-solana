@@ -1,5 +1,6 @@
 import * as web3 from "@solana/web3.js";
 import { Adapter } from "@solana/wallet-adapter-base";
+import { ToastContainerProps } from "react-toastify";
 
 export enum SolanaNetwork {
   Devnet = "devnet",
@@ -16,6 +17,7 @@ export interface Config<T = unknown> {
   network: SolanaNetwork;
   RPC_List: RPC[];
   wallets?: Adapter[];
+  toastContainerConfig?: ToastContainerProps;
   custom?: T;
 }
 
